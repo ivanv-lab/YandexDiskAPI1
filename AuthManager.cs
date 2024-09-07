@@ -1,0 +1,51 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+
+namespace YandexDiskAPI1
+{
+    public class AuthManager
+    {
+        private const string ClientId = "cc61c9f8668b48cf8e4eb55ec8d915bf";
+        private const string ClientSecret = "b436f128fc3f4ca39f897b61d0776ec2";
+        private const string RedirectUri = "https://localhost";
+
+        public async Task<string> GetAccessTokenAsync()
+        {
+            var authUrl = $"https://oauth.yandex.ru" +
+                $"/authorize?response_type=code" +
+                $"&client_id={ClientId}";
+            Console.WriteLine($"Перейдите по ссылке и введите " +
+                $"код подтверждения");
+            Console.WriteLine(authUrl);
+
+            var code=Console.ReadLine();
+
+            using var client=new HttpClient();
+            var request = new HttpRequestMessage
+                (HttpMethod.Post,
+                $"https://oauth.yandex.ru/token")
+            {
+                Content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                new KeyValuePair<string, string>("code", code),
+                new KeyValuePair<string, string>("client_id", ClientId),
+                new KeyValuePair<string, string>("client_secret", ClientSecret)
+                })
+            };
+
+            var response=await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var responseData=await response.Content.ReadAsStringAsync();
+            dynamic data =Newtonsoft.Json.Linq
+                .JObject.Parse(responseData);
+
+            return data.access_token;
+        }
+    }
+}
