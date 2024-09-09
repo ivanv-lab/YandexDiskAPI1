@@ -34,27 +34,24 @@ namespace YandexDiskAPI1
                 var response = await httpClient.GetAsync("https://cloud-api.yandex.net/v1/disk" +
                     "/resources?path=/");
 
-                List<string> allFolders = new List<string>();
-
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     JObject json = JObject.Parse(content);
-                    foreach (var item in json["_embedded"]["items"])
-                    {
-                        if (item["type"].ToString() == "dir")
-                        {
-                            string name = item["name"].ToString();
-                            Console.WriteLine(name);
-                            allFolders.Add(name);
-                        }
-                    }
+                    //foreach (var item in json["_embedded"]["items"])
+                    //{
+                    //    if (item["type"].ToString() == "dir")
+                    //    {
+                    //        string name = item["name"].ToString();
+                    //        Console.WriteLine(name);
+                    //    }
+                    //}
                     Console.WriteLine();
                     foreach (var item in json["_embedded"]["items"])
                     {
                         if (item["type"].ToString() == "dir")
                         {
-                            string name = item["path"].ToString();
+                            string name = item.ToString();
                             Console.WriteLine(name);
                         }
                     }
