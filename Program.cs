@@ -10,7 +10,10 @@ namespace YandexDiskAPI1
         {
             Console.WriteLine("Hello, World!");
 
-            var oauthToken = "y0_AgAAAAAjNsyhAAxoAwAAAAEQYp3XAAB65Pto3Q9Hrr_OPnsmRHacs_5zug";
+            var authManager = new AuthManager();
+            var oauthToken = await authManager.GetToken();
+
+            // oauthToken = "y0_AgAAAAAjNsyhAAxoAwAAAAEQYp3XAAB65Pto3Q9Hrr_OPnsmRHacs_5zug";
             var stopwatch = Stopwatch.StartNew();
             Console.WriteLine("Подождите");
             await GetYandexDiskFiles(oauthToken);
