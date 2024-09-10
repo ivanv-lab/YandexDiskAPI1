@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Text.Json;
 
 namespace YandexDiskAPI1
 {
@@ -11,49 +11,50 @@ namespace YandexDiskAPI1
             Console.WriteLine("Hello, World!");
 
             var oauthToken = "y0_AgAAAAAjNsyhAAxoAwAAAAEQYp3XAAB65Pto3Q9Hrr_OPnsmRHacs_5zug";
-
+            var stopwatch = Stopwatch.StartNew();
+            Console.WriteLine("Подождите");
             await GetYandexDiskFiles(oauthToken);
 
-            var yandexDiskRequest = new YandexDiskRequest();
-            try
+            Console.WriteLine("ПАПКИ НА УДАЛЕНИЕ::::::::::::::::::::::::::::::::::");
+            foreach(var path in foldersToDelete)
             {
-                //await yandexDiskRequest.GetFiles(oauthToken);
+                Console.WriteLine(path);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Произошла ошибка: {ex.Message}");
-            }
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
-
-        private static async Task GetYandexDiskFiles(string token)
+        public static List<string>foldersToDelete = new List<string>();
+        private static async Task GetYandexDiskFiles(string token,string path="/")
         {
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", token);
 
                 var response = await httpClient.GetAsync("https://cloud-api.yandex.net/v1/disk" +
-                    "/resources?path=/");
+                    $"/resources?path={path}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     JObject json = JObject.Parse(content);
-                    //foreach (var item in json["_embedded"]["items"])
-                    //{
-                    //    if (item["type"].ToString() == "dir")
-                    //    {
-                    //        string name = item["name"].ToString();
-                    //        Console.WriteLine(name);
-                    //    }
-                    //}
-                    Console.WriteLine();
+
+                    List<string> paths = new List<string>();
+
                     foreach (var item in json["_embedded"]["items"])
                     {
                         if (item["type"].ToString() == "dir")
                         {
-                            string name = item.ToString();
-                            Console.WriteLine(name);
+                            paths.Add(item["path"].ToString());
                         }
+                    }
+                    if (json["_embedded"]["items"].Count() == 0)
+                    {
+                        foldersToDelete.Add(path);
+                        return;
+                    }
+                    foreach (var pat in paths)
+                    {
+                        await GetYandexDiskFiles(token, pat);
                     }
                 }
             }
