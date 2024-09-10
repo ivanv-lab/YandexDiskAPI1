@@ -52,10 +52,16 @@ namespace YandexDiskAPI1
                         foldersToDelete.Add(path);
                         return;
                     }
-                    foreach (var pat in paths)
-                    {
-                        await GetYandexDiskFiles(token, pat);
-                    }
+                    var tasks = paths.Select(async p => await
+                    GetYandexDiskFiles(token, p)).ToList();
+                    await Task.WhenAll(tasks);
+                    //foreach (var pat in paths)
+                    //{
+                        //await GetYandexDiskFiles(token, pat);
+
+                        //Parallel.Invoke(async () =>
+                        //await GetYandexDiskFiles(token, pat));
+                    //}
                 }
             }
         }
