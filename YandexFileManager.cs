@@ -22,7 +22,6 @@ namespace YandexDiskAPI1
             await GetYandexDiskFiles(token);
             if (foldersToDelete.Count == 0)
             {
-                Console.WriteLine("Нет пустых папок");
                 return;
             }
             await DeleteFolders(token);
